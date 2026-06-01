@@ -119,6 +119,14 @@ roslaunch dog_vins_bringup dog_standalone_d435i_stereo.launch
 
 用途：只打开 D435i 左右红外图像并以 VINS stereo-only 模式运行，绕开 D435i Motion Module。
 
+如果 RealSense 刚被异常中断过，可让驱动启动时重置设备：
+
+```bash
+roslaunch dog_vins_bringup dog_standalone_d435i_stereo.launch initial_reset:=true
+```
+
+用途：只影响本次 launch 内的 RealSense 设备初始化，不修改系统版本或全局参数。
+
 ## 4. 基础话题检查
 
 检查彩色图像频率：
@@ -175,6 +183,16 @@ rostopic echo -n 1 /dog_vins/vins_estimator/path
 ```
 
 用途：确认路径消息存在，可用于 RViz 显示。
+
+不移动机器狗时的静态检查：
+
+```bash
+rostopic echo -n 1 /dog_vins/vins_estimator/odometry
+rostopic echo -n 1 /dog_vins/vins_estimator/path
+rostopic hz /dog_vins/vins_estimator/image_track
+```
+
+用途：确认 VINS 已经有输出、特征跟踪 topic 在刷新。静止状态下 odometry 可能变化很小，这是正常现象。
 
 查看节点：
 
@@ -428,6 +446,8 @@ rostopic hz /camera/imu
 用途：确认图像和 IMU 都存在。
 
 然后做低速平移，不要只原地旋转。VINS 初始化需要足够视差。
+
+如果暂时不能移动机器狗，先检查 `/dog_vins/vins_estimator/image_track`。若 image_track 有频率，说明图像输入和特征跟踪已经通；是否能稳定初始化要等下次移动测试。
 
 ### 轨迹方向明显不对
 

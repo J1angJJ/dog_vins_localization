@@ -14,6 +14,7 @@
   <arg name="color_fps" default="15"/>
   <arg name="gyro_fps" default="200"/>
   <arg name="accel_fps" default="100"/>
+  <arg name="initial_reset" default="false"/>
   <arg name="start_rviz" default="false"/>
   <arg name="output" default="screen"/>
 
@@ -24,6 +25,7 @@
     <arg name="color_fps" value="$(arg color_fps)"/>
     <arg name="gyro_fps" value="$(arg gyro_fps)"/>
     <arg name="accel_fps" value="$(arg accel_fps)"/>
+    <arg name="initial_reset" value="$(arg initial_reset)"/>
   </include>
 
   <group ns="$(arg namespace)">

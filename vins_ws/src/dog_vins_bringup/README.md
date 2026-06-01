@@ -23,6 +23,8 @@ roslaunch dog_vins_bringup dog_standalone_d435i_stereo.launch
 This starts D435i `infra1` and `infra2` at `640x480 @ 30 Hz`, disables gyro and
 accel, and runs VINS in stereo-only mode. Use it when `/camera/imu` is missing
 or the RealSense log reports `Motion Module failure`.
+Add `initial_reset:=true` when the camera was just interrupted or left in a bad
+runtime state.
 
 Passive external IMU mode:
 

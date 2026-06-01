@@ -11,6 +11,7 @@
   <arg name="enable_infra1" default="false"/>
   <arg name="enable_infra2" default="false"/>
   <arg name="enable_pointcloud" default="false"/>
+  <arg name="initial_reset" default="false"/>
   <arg name="publish_tf" default="false"/>
   <arg name="publish_odom_tf" default="false"/>
 
@@ -25,6 +26,7 @@
     <arg name="enable_infra1" value="$(arg enable_infra1)"/>
     <arg name="enable_infra2" value="$(arg enable_infra2)"/>
     <arg name="enable_pointcloud" value="$(arg enable_pointcloud)"/>
+    <arg name="initial_reset" value="$(arg initial_reset)"/>
     <arg name="enable_gyro" value="true"/>
     <arg name="enable_accel" value="true"/>
     <arg name="gyro_fps" value="$(arg gyro_fps)"/>

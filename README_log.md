@@ -393,4 +393,5 @@ roslaunch dog_vins_bringup dog_mono_imu_passive.launch
 - 新增 `dog_vins_bringup/TEST_GUIDE.md`，记录独立启动、话题检查、录包复盘和标定项。
 - 2026-06-01 22:07 日志显示 D435i 驱动已启动 IMU publisher，但随后出现 `Motion Module failure`，VINS 持续 `wait for imu ...`，判断为 `/camera/imu` 无有效消息。
 - 新增 D435i 双目红外 stereo-only 备用链路：`dog_standalone_d435i_stereo.launch`、`dog_realsense_d435i_stereo.launch`、`dog_d435i_stereo_config.yaml` 和左右红外 640x480 内参文件。该链路禁用 gyro/accel，用于绕开 D435i Motion Module 问题并继续验证 VINS 主体。
+- 2026-06-01 双目备用链路已在机器狗端确认三个核心 topic 有信息；新增 `initial_reset` 启动参数和静态检查说明，便于不移动机器狗时验证图像、特征跟踪和 VINS 输出状态。
 - 未修改 VINS-Fusion 上游核心包；新增和调整均位于 `dog_vins_bringup` 适配包及本文档。
