@@ -1,0 +1,85 @@
+# ROS/catkin build outputs
+build/
+devel/
+install/
+log/
+.catkin_tools/
+.catkin_workspace
+
+# ROS 2/colcon build outputs, useful if tools are mixed on the host
+build_isolated/
+devel_isolated/
+install_isolated/
+.colcon/
+
+# Local datasets, recordings, and generated map/state files
+dataset/
+datasets/
+data/
+bags/
+recordings/
+*.bag
+*.db3
+*.mcap
+*.sqlite3
+*.sqlite
+*.active
+*.pgm
+*.pcd
+*.ply
+*.mp4
+*.avi
+*.mov
+
+# VINS/SLAM runtime outputs
+output/
+outputs/
+results/
+trajectory/
+trajectories/
+*.tum
+*.kitti
+*.csv
+
+# Python cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# C/C++ and CMake temporary files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+*.o
+*.obj
+*.so
+*.a
+*.dll
+*.dylib
+*.exe
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# AI/model artifacts that should not be committed accidentally
+*.pt
+*.pth
+*.onnx
+*.engine
+*.trt
+
+# Local private robot access settings
+private_robot_access.yaml
+**/private_robot_access.yaml
