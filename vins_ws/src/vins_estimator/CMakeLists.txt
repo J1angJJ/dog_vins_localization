@@ -62,3 +62,7 @@ target_link_libraries(kitti_odom_test vins_lib)
 add_executable(kitti_gps_test src/KITTIGPSTest.cpp)
 target_link_libraries(kitti_gps_test vins_lib) 
 
+foreach(target vins_lib vins_node kitti_odom_test kitti_gps_test)
+    target_compile_options(${target} PRIVATE -include ${CMAKE_SOURCE_DIR}/opencv4_compat.hpp)
+endforeach()
+

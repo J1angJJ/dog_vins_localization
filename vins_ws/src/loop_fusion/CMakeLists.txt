@@ -44,3 +44,4 @@ add_executable(loop_fusion_node
     )
 
 target_link_libraries(loop_fusion_node ${catkin_LIBRARIES}  ${OpenCV_LIBS} ${CERES_LIBRARIES}) 
+target_compile_options(loop_fusion_node PRIVATE -include ${CMAKE_SOURCE_DIR}/opencv4_compat.hpp)

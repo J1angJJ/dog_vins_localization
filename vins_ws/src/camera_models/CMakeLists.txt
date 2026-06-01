@@ -66,3 +66,7 @@ add_library(camera_models
 
 target_link_libraries(Calibrations ${Boost_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES})
 target_link_libraries(camera_models ${Boost_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES})
+
+foreach(target Calibrations camera_models)
+    target_compile_options(${target} PRIVATE -include ${CMAKE_SOURCE_DIR}/opencv4_compat.hpp)
+endforeach()
