@@ -305,6 +305,7 @@ rosrun tf tf_echo base_link camera_link
 ```text
 vins_ws/src/dog_vins_bringup/
   README.md
+  TEST_GUIDE.md
   config/dog_mono_d435i_internal_imu_config.yaml
   config/dog_mono_imu_config.yaml
   config/dog_color_pinhole_1280x720.yaml
@@ -389,4 +390,5 @@ roslaunch dog_vins_bringup dog_mono_imu_passive.launch
 - 新建本文档记录检查过程与结论。
 - 2026-06-01 12:25 复查确认 VINS-Fusion 源码已补齐，并记录自带 D435i 示例配置与机器狗现有话题链路的差异。
 - 新增 `dog_vins_bringup` 独立配置包，用于旁路订阅 `/camera/color/image_raw` 和 `/imu/data`，避免修改 `comp2026_ws`。
+- 新增 `dog_vins_bringup/TEST_GUIDE.md`，记录独立启动、话题检查、录包复盘和标定项。
 - 未修改 `vins_ws` 内部文件。

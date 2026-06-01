@@ -27,3 +27,4 @@ and `/imu/data`.
 - Parameters are file-based VINS YAML configs in this package, not global ROS params.
 - Runtime output is written to `/tmp/dog_vins_output`.
 - The current extrinsics and IMU noise values are first-run guesses. Replace them after calibration.
+- Test procedure and calibration notes are in `TEST_GUIDE.md`.
