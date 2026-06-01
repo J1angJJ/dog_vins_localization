@@ -1,0 +1,72 @@
+%YAML:1.0
+
+# Standalone D435i RGB + D435i internal IMU trial config.
+# Use this when dog_vins_localization is launched by itself and comp2026_ws is
+# not running. All parameters live in this package and are read by VINS from
+# this file; nothing is loaded into the global ROS parameter tree.
+
+# Common parameters
+# support: 1 imu 1 cam; 1 imu 2 cam; 2 cam
+imu: 1
+num_of_cam: 1
+
+# Topics produced by launch/dog_standalone_d435i_vins.launch.
+imu_topic: "/camera/imu"
+image0_topic: "/camera/color/image_raw"
+image1_topic: "/unused"
+
+# Runtime output. The standalone launch creates this directory before VINS runs.
+output_path: "/tmp/dog_vins_output"
+pose_graph_save_path: "/tmp/dog_vins_output/pose_graph/"
+
+cam0_calib: "dog_color_pinhole_1280x720.yaml"
+cam1_calib: "dog_color_pinhole_1280x720.yaml"
+image_width: 1280
+image_height: 720
+
+# D435i color-to-internal-IMU extrinsic is not yet calibrated on this robot.
+# Start with online extrinsic calibration and replace this guess after a real
+# Kalibr/VINS calibration run.
+estimate_extrinsic: 1
+
+body_T_cam0: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: d
+   data: [ 0.0,  0.0,  1.0,  0.0,
+          -1.0,  0.0,  0.0,  0.0,
+           0.0, -1.0,  0.0,  0.0,
+           0.0,  0.0,  0.0,  1.0 ]
+
+# Multiple thread support
+multiple_thread: 1
+
+# Feature tracker parameters
+max_cnt: 150
+min_dist: 30
+freq: 10
+F_threshold: 1.0
+show_track: 1
+flow_back: 1
+
+# Optimization parameters
+max_solver_time: 0.04
+max_num_iterations: 8
+keyframe_parallax: 10.0
+
+# Placeholder IMU parameters for first bringup only.
+# Replace with measured D435i IMU noise before judging estimator quality.
+acc_n: 0.1
+gyr_n: 0.01
+acc_w: 0.001
+gyr_w: 0.0001
+g_norm: 9.805
+
+# D435i image and IMU streams are software synchronized by realsense2_camera,
+# not hardware synchronized to VINS standards. Let VINS refine td initially.
+estimate_td: 1
+td: 0.0
+
+# Loop closure parameters
+load_previous_pose_graph: 0
+save_image: 0

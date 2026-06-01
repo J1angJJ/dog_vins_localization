@@ -4,6 +4,8 @@
 
 目标：检查新放入 `vins_ws` 的 VINS-Fusion 关键包，参考 `R:\Temp\comp2026_ws` 中机器狗感知主机工程背景，确认实机上可供 VINS 使用的硬件话题、坐标系和关键约束。
 
+更新：2026-06-01 12:25 重新拉取后复查，VINS-Fusion 核心源码已补齐。
+
 ## 1. 本仓库检查
 
 仓库根目录当前包含：
@@ -21,6 +23,7 @@ vins_ws/
 
 ```text
 vins_ws/src/
+  LICENCE
   README.md
   camera_models/
   config/
@@ -40,10 +43,11 @@ vins
 
 重要发现：
 
-- 当前 `vins_ws/src` 中只看到 `CMakeLists.txt`、`package.xml`、README、RViz 配置、图片和 PDF 资源。
-- `vins_estimator/CMakeLists.txt` 明确引用了 `src/estimator/parameters.cpp`、`src/rosNodeTest.cpp`、`src/KITTIOdomTest.cpp` 等源码文件，但这些文件/目录当前不存在。
-- `loop_fusion`、`global_fusion`、`camera_models` 也只有包描述和 CMake 文件，没有核心源码目录。
-- 因此按当前文件状态，`catkin_make` 预期会失败；需要补全 VINS-Fusion 原始源码后再上机编译。
+- 重新拉取后，`vins_estimator/src`、`loop_fusion/src`、`global_fusion/src`、`camera_models/src`、`camera_models/include` 均已存在。
+- `vins_estimator/CMakeLists.txt` 引用的 `src/estimator/parameters.cpp`、`src/rosNodeTest.cpp`、`src/KITTIOdomTest.cpp` 等源码文件已经存在。
+- `loop_fusion` 的 DBoW/DVision/DUtils 第三方源码、`global_fusion` 的 GeographicLib 第三方源码也已存在。
+- 从文件完整性看，当前 `vins_ws` 已具备源码层面的编译条件。
+- 真正能否在机器狗感知主机上编译，还取决于 ROS Noetic、OpenCV、Ceres、Boost、Eigen、cv_bridge、image_transport、roslib 等依赖是否安装并兼容。
 
 本次没有修改 `vins_ws` 内部文件。
 
@@ -136,6 +140,19 @@ publish_odom_tf=false
 - VINS-Fusion 通常需要灰度/彩色图像输入，单目+IMU 可优先考虑 `/camera/color/image_raw`。
 - 当前导航默认不开彩色流；试跑 VINS 时需要显式启动彩色流，例如沿用 `camera_meter_only.launch` 或给 `camera.launch` 传 `enable_color:=true`。
 - D435i 是滚动快门 RGB，相比全局快门相机更容易受运动模糊和时序误差影响；初次试跑建议低速、短距离、录包复盘。
+
+VINS-Fusion 自带 `config/realsense_d435i` 示例配置：
+
+```text
+imu_topic: /camera/imu
+image0_topic: /camera/infra1/image_rect_raw
+image1_topic: /camera/infra2/image_rect_raw
+num_of_cam: 2
+image_width: 640
+image_height: 480
+```
+
+该示例更偏向 D435i 双红外 + RealSense 自带 IMU；与当前比赛工程已确认链路不同。当前 `comp2026_ws` 里更确定的是 D435i RGB/Depth 和运动主机回传 `/imu/data`。因此 `config/realsense_d435i/realsense_stereo_imu_config.yaml` 不能直接当作机器狗正式配置使用。
 
 ### 3.2 IMU 话题
 
@@ -281,18 +298,33 @@ rosrun tf tf_echo base_link camera_link
 
 ## 5. 上机前风险与待办
 
-1. 补全 VINS-Fusion 源码。
+0. 已新增独立 bringup 包。
 
-当前 `vins_ws/src` 不具备编译条件。需要确认复制/clone 过程是否漏掉了源码目录，尤其是：
+为避免影响 `comp2026_ws` 和 VINS-Fusion 上游源码，新增：
 
 ```text
-vins_estimator/src/
-loop_fusion/src/
-global_fusion/src/
-camera_models/src/
-camera_models/include/
-config/euroc/
-config/realsense 或自定义机器狗配置
+vins_ws/src/dog_vins_bringup/
+  README.md
+  config/dog_mono_d435i_internal_imu_config.yaml
+  config/dog_mono_imu_config.yaml
+  config/dog_color_pinhole_1280x720.yaml
+  launch/dog_standalone_d435i_vins.launch
+  launch/dog_realsense_d435i_color_imu.launch
+  launch/dog_mono_imu_passive.launch
+```
+
+默认入口 `dog_standalone_d435i_vins.launch` 会在本仓库内独立启动 D435i 彩色流、D435i 内置 IMU 和 VINS，不启动 `comp2026_ws`。VINS 输出放在 `/dog_vins/...` 命名空间，结果文件写到 `/tmp/dog_vins_output`。配置由 VINS YAML 文件直接读取，不加载到全局 ROS 参数树。
+
+1. 编译验证。
+
+重新拉取后源码已补齐。下一步需要在感知主机 Ubuntu/ROS Noetic 环境中执行：
+
+```bash
+cd ~/dog_vins_localization/vins_ws
+catkin_make
+source devel/setup.bash
+rospack find vins
+rospack find dog_vins_bringup
 ```
 
 2. 准备机器狗专用 VINS 配置。
@@ -308,6 +340,34 @@ body_T_cam / extrinsicRotation / extrinsicTranslation
 time offset 设置
 IMU 噪声参数
 ```
+
+当前可参考但不能照搬：
+
+```text
+vins_ws/src/config/realsense_d435i/realsense_stereo_imu_config.yaml
+```
+
+当前新增的试跑配置：
+
+```text
+vins_ws/src/dog_vins_bringup/config/dog_mono_imu_config.yaml
+```
+
+独立启动建议：
+
+```bash
+source ~/dog_vins_localization/vins_ws/devel/setup.bash
+roslaunch dog_vins_bringup dog_standalone_d435i_vins.launch
+```
+
+如果确实要使用运动主机 `/imu/data`，可以只启动外部传感器/桥接后使用被动模式：
+
+```bash
+source ~/dog_vins_localization/vins_ws/devel/setup.bash
+roslaunch dog_vins_bringup dog_mono_imu_passive.launch
+```
+
+若继续使用 `comp2026_ws` 默认 `camera.launch` 的 `640x480` 彩色 profile，必须重新测量 `/camera/color/camera_info` 并新增对应相机内参文件，不能复用当前 `1280x720` 内参。
 
 3. 确认 D435i 彩色流是否适合 VINS。
 
@@ -327,4 +387,6 @@ IMU 噪声参数
 - 读取了 `R:\Temp\comp2026_ws` 的物理配置、测试手册和相关 launch/config/source 文件。
 - 重点确认了 D435i、IMU、腿部里程计、EKF、TF、rosbag 相关话题。
 - 新建本文档记录检查过程与结论。
+- 2026-06-01 12:25 复查确认 VINS-Fusion 源码已补齐，并记录自带 D435i 示例配置与机器狗现有话题链路的差异。
+- 新增 `dog_vins_bringup` 独立配置包，用于旁路订阅 `/camera/color/image_raw` 和 `/imu/data`，避免修改 `comp2026_ws`。
 - 未修改 `vins_ws` 内部文件。

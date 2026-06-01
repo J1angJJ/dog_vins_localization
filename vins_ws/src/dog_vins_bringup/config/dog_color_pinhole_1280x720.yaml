@@ -1,0 +1,20 @@
+%YAML:1.0
+---
+model_type: PINHOLE
+camera_name: d435i_color
+image_width: 1280
+image_height: 720
+
+# From comp2026_ws README_PHYSICAL_CONFIG.md, measured from
+# /camera/color/camera_info in the current D435i ROS profile.
+# Re-measure if color_width/color_height or RealSense profile changes.
+distortion_parameters:
+   k1: 0.0
+   k2: 0.0
+   p1: 0.0
+   p2: 0.0
+projection_parameters:
+   fx: 907.272400
+   fy: 907.151672
+   cx: 642.610779
+   cy: 376.501648

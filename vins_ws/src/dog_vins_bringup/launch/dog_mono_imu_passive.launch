@@ -1,0 +1,20 @@
+<launch>
+  <!--
+    Passive VINS-Fusion trial:
+    - Does not start RealSense, message_transformer, navigation, or robot control.
+    - Subscribes to topics produced by another launch.
+    - Runs under /dog_vins so outputs do not collide with other VINS trials.
+  -->
+  <arg name="config_file" default="$(find dog_vins_bringup)/config/dog_mono_imu_config.yaml"/>
+  <arg name="namespace" default="dog_vins"/>
+  <arg name="output" default="screen"/>
+
+  <group ns="$(arg namespace)">
+    <node pkg="vins"
+          type="vins_node"
+          name="vins_estimator"
+          output="$(arg output)"
+          launch-prefix="bash -lc 'mkdir -p /tmp/dog_vins_output/pose_graph; exec &quot;$@&quot;' bash"
+          args="$(arg config_file)"/>
+  </group>
+</launch>

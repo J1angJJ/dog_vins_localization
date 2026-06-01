@@ -1,0 +1,39 @@
+<launch>
+  <!--
+    Fully standalone VINS bringup for this repository:
+    - starts D435i color + internal IMU locally;
+    - starts VINS under /dog_vins;
+    - does not start or modify comp2026_ws navigation, motion bridge, or global
+      task parameters.
+  -->
+  <arg name="config_file" default="$(find dog_vins_bringup)/config/dog_mono_d435i_internal_imu_config.yaml"/>
+  <arg name="namespace" default="dog_vins"/>
+  <arg name="serial_no" default=""/>
+  <arg name="color_width" default="1280"/>
+  <arg name="color_height" default="720"/>
+  <arg name="color_fps" default="15"/>
+  <arg name="start_rviz" default="false"/>
+  <arg name="output" default="screen"/>
+
+  <include file="$(find dog_vins_bringup)/launch/dog_realsense_d435i_color_imu.launch">
+    <arg name="serial_no" value="$(arg serial_no)"/>
+    <arg name="color_width" value="$(arg color_width)"/>
+    <arg name="color_height" value="$(arg color_height)"/>
+    <arg name="color_fps" value="$(arg color_fps)"/>
+  </include>
+
+  <group ns="$(arg namespace)">
+    <node pkg="vins"
+          type="vins_node"
+          name="vins_estimator"
+          output="$(arg output)"
+          launch-prefix="bash -lc 'mkdir -p /tmp/dog_vins_output/pose_graph; exec &quot;$@&quot;' bash"
+          args="$(arg config_file)"/>
+  </group>
+
+  <node if="$(arg start_rviz)"
+        pkg="rviz"
+        type="rviz"
+        name="dog_vins_rviz"
+        args="-d $(find vins)/../config/vins_rviz_config.rviz"/>
+</launch>
