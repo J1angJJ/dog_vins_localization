@@ -20,6 +20,20 @@ VINS output        -> /dog_vins/vins_estimator/odometry
 vins_ws/src/dog_vins_bringup/config/dog_mono_d435i_internal_imu_config.yaml
 ```
 
+如果 D435i 内置 IMU 报 `Motion Module failure` 或 `/camera/imu` 长时间无消息，可切换到双目红外备用链路：
+
+```text
+D435i infra1 image -> /camera/infra1/image_rect_raw -> VINS
+D435i infra2 image -> /camera/infra2/image_rect_raw -> VINS
+IMU disabled
+```
+
+对应配置：
+
+```text
+vins_ws/src/dog_vins_bringup/config/dog_d435i_stereo_config.yaml
+```
+
 ## 2. 编译与环境
 
 进入 VINS 工作区：
@@ -97,6 +111,14 @@ roslaunch dog_vins_bringup dog_standalone_d435i_vins.launch start_rviz:=true
 
 用途：启动 VINS 自带 RViz 配置，观察轨迹、特征点和路径。
 
+如果 `/camera/imu` 不发布，启动双目红外备用链路：
+
+```bash
+roslaunch dog_vins_bringup dog_standalone_d435i_stereo.launch
+```
+
+用途：只打开 D435i 左右红外图像并以 VINS stereo-only 模式运行，绕开 D435i Motion Module。
+
 ## 4. 基础话题检查
 
 检查彩色图像频率：
@@ -123,6 +145,17 @@ rostopic echo -n 1 /camera/imu
 ```
 
 用途：确认 VINS 的 IMU 输入存在、时间戳在变化、加速度和角速度不是全零。
+
+检查双目红外备用链路：
+
+```bash
+rostopic hz /camera/infra1/image_rect_raw
+rostopic hz /camera/infra2/image_rect_raw
+rostopic echo -n 1 /camera/infra1/camera_info
+rostopic echo -n 1 /camera/infra2/camera_info
+```
+
+用途：确认 stereo-only 模式的两路图像都接近 30 Hz，且分辨率为 `640x480`。
 
 检查 VINS 输出：
 
@@ -368,6 +401,21 @@ unite_imu_method:=linear_interpolation
 
 如果 launch 输出 `Motion Module failure`，先重插 D435i USB3 线并重新启动 launch。当前默认使用 `gyro_fps:=200`、`accel_fps:=100`，这是本机日志中 D435i 实际接受的 IMU profile；不要再强制 `accel_fps:=250`。
 
+若多次重启后仍然出现：
+
+```text
+Hardware Notification:Motion Module failure
+wait for imu ...
+```
+
+先切换到双目红外备用链路：
+
+```bash
+roslaunch dog_vins_bringup dog_standalone_d435i_stereo.launch
+```
+
+该链路不使用 `/camera/imu`，能判断相机图像和 VINS 主体是否正常。后续再单独处理 D435i 内置 IMU 或改接运动主机 `/imu/data`。
+
 ### VINS 没有 odometry 输出
 
 检查输入：
@@ -410,11 +458,16 @@ IMU 单位
 
 ```text
 launch/dog_standalone_d435i_vins.launch
+launch/dog_standalone_d435i_stereo.launch
 launch/dog_realsense_d435i_color_imu.launch
+launch/dog_realsense_d435i_stereo.launch
 launch/dog_mono_imu_passive.launch
 config/dog_mono_d435i_internal_imu_config.yaml
+config/dog_d435i_stereo_config.yaml
 config/dog_mono_imu_config.yaml
 config/dog_color_pinhole_1280x720.yaml
+config/dog_d435i_infra_left_640x480.yaml
+config/dog_d435i_infra_right_640x480.yaml
 README.md
 TEST_GUIDE.md
 ```

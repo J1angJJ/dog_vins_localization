@@ -14,6 +14,16 @@ This starts RealSense color plus D435i internal IMU and then runs VINS in the
 `/dog_vins` namespace. It does not start `comp2026_ws`.
 Default IMU profiles are `gyro_fps:=200` and `accel_fps:=100`.
 
+Standalone D435i stereo fallback mode:
+
+```bash
+roslaunch dog_vins_bringup dog_standalone_d435i_stereo.launch
+```
+
+This starts D435i `infra1` and `infra2` at `640x480 @ 30 Hz`, disables gyro and
+accel, and runs VINS in stereo-only mode. Use it when `/camera/imu` is missing
+or the RealSense log reports `Motion Module failure`.
+
 Passive external IMU mode:
 
 ```bash
