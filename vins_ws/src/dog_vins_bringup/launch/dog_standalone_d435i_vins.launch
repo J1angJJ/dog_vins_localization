@@ -12,6 +12,8 @@
   <arg name="color_width" default="1280"/>
   <arg name="color_height" default="720"/>
   <arg name="color_fps" default="15"/>
+  <arg name="gyro_fps" default="200"/>
+  <arg name="accel_fps" default="100"/>
   <arg name="start_rviz" default="false"/>
   <arg name="output" default="screen"/>
 
@@ -20,6 +22,8 @@
     <arg name="color_width" value="$(arg color_width)"/>
     <arg name="color_height" value="$(arg color_height)"/>
     <arg name="color_fps" value="$(arg color_fps)"/>
+    <arg name="gyro_fps" value="$(arg gyro_fps)"/>
+    <arg name="accel_fps" value="$(arg accel_fps)"/>
   </include>
 
   <group ns="$(arg namespace)">

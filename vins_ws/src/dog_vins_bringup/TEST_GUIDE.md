@@ -74,7 +74,7 @@ vins_node
 
 ```text
 color: 1280x720 @ 15 Hz
-imu: gyro 200 Hz, accel 250 Hz, united as /camera/imu
+imu: gyro 200 Hz, accel 100 Hz, united as /camera/imu
 depth: disabled
 infra1/infra2: disabled
 pointcloud: disabled
@@ -132,6 +132,8 @@ rostopic echo -n 1 /dog_vins/vins_estimator/odometry
 ```
 
 用途：确认 VINS 已经初始化并开始输出里程计。刚启动时可能需要移动一段才有稳定输出。
+
+注意：如果只静止放着，VINS 可能一直没有 `/dog_vins/vins_estimator/odometry` 消息。这不是 topic 不存在，而是尚未完成初始化。先确认 `/camera/color/image_raw`、`/camera/imu` 和 `/dog_vins/vins_estimator/image_track`。
 
 检查 VINS 路径：
 
@@ -363,6 +365,8 @@ rostopic list | grep camera
 ```text
 unite_imu_method:=linear_interpolation
 ```
+
+如果 launch 输出 `Motion Module failure`，先重插 D435i USB3 线并重新启动 launch。当前默认使用 `gyro_fps:=200`、`accel_fps:=100`，这是本机日志中 D435i 实际接受的 IMU profile；不要再强制 `accel_fps:=250`。
 
 ### VINS 没有 odometry 输出
 

@@ -6,7 +6,7 @@
   <arg name="color_height" default="720"/>
   <arg name="color_fps" default="15"/>
   <arg name="gyro_fps" default="200"/>
-  <arg name="accel_fps" default="250"/>
+  <arg name="accel_fps" default="100"/>
   <arg name="enable_depth" default="false"/>
   <arg name="enable_infra1" default="false"/>
   <arg name="enable_infra2" default="false"/>
