@@ -13,7 +13,15 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS filesystem program_options system)
 include_directories(${Boost_INCLUDE_DIRS})
 
+option(DOG_VINS_PREFER_ROS_OPENCV "Prefer ROS/system OpenCV over /usr/local OpenCV" ON)
+if(DOG_VINS_PREFER_ROS_OPENCV)
+    set(_ros_opencv_dir "/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/opencv4")
+    if(EXISTS "${_ros_opencv_dir}/OpenCVConfig.cmake")
+        set(OpenCV_DIR "${_ros_opencv_dir}" CACHE PATH "OpenCV config directory" FORCE)
+    endif()
+endif()
 find_package(OpenCV REQUIRED)
+message(STATUS "camera_models using OpenCV ${OpenCV_VERSION} from ${OpenCV_DIR}")
 
 # set(EIGEN_INCLUDE_DIR "/usr/local/include/eigen3")
 find_package(Ceres REQUIRED)
