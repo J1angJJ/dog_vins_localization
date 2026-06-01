@@ -4,7 +4,6 @@ devel/
 install/
 log/
 .catkin_tools/
-.catkin_workspace
 
 # ROS 2/colcon build outputs, useful if tools are mixed on the host
 build_isolated/
