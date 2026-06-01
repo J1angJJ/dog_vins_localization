@@ -4,7 +4,12 @@
 // OpenCV 2/3 C-style constants. ROS Noetic deployments may use OpenCV 4,
 // where these CV_* names were removed from public headers.
 
+// Pull in OpenCV's own legacy C constants before defining any fallback macro.
+// Some ROS headers include these later (for example through cv_bridge); if our
+// macros existed first, they would expand inside OpenCV's enum declarations.
 #include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/types_c.h>
+#include <opencv2/imgcodecs/legacy/constants_c.h>
 
 #ifndef CV_GRAY2BGR
 #define CV_GRAY2BGR cv::COLOR_GRAY2BGR
