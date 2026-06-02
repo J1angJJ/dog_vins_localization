@@ -1,0 +1,49 @@
+<launch>
+  <!--
+    Loose external fusion for first-pass experiments.
+    Inputs are VINS odometry, motion-host leg odometry, and motion-host IMU.
+    It does not publish TF by default, so it will not compete with comp2026_ws.
+  -->
+  <arg name="namespace" default="dog_vins_fusion"/>
+  <arg name="config_file" default="$(find dog_vins_bringup)/config/dog_vins_external_fusion.yaml"/>
+  <arg name="vins_odom_topic" default="/dog_vins/vins_estimator/odometry"/>
+  <arg name="adapted_vins_odom_topic" default="/dog_vins/odom_base_link"/>
+  <arg name="leg_odom_topic" default="/leg_odom2"/>
+  <arg name="imu_topic" default="/imu/data"/>
+  <arg name="zero_on_first_pose" default="true"/>
+  <arg name="planar" default="true"/>
+  <arg name="position_scale" default="1.0"/>
+  <arg name="yaw_offset" default="0.0"/>
+  <arg name="publish_tf" default="false"/>
+  <arg name="output" default="screen"/>
+
+  <node pkg="dog_vins_bringup"
+        type="vins_odom_adapter.py"
+        name="vins_odom_adapter"
+        output="$(arg output)">
+    <param name="input_odom" value="$(arg vins_odom_topic)"/>
+    <param name="output_odom" value="$(arg adapted_vins_odom_topic)"/>
+    <param name="output_frame" value="odom"/>
+    <param name="output_child_frame" value="base_link"/>
+    <param name="zero_on_first_pose" value="$(arg zero_on_first_pose)"/>
+    <param name="planar" value="$(arg planar)"/>
+    <param name="position_scale" value="$(arg position_scale)"/>
+    <param name="yaw_offset" value="$(arg yaw_offset)"/>
+    <rosparam param="pose_covariance_diagonal">[0.05, 0.05, 1.0, 1.0, 1.0, 0.1]</rosparam>
+    <rosparam param="twist_covariance_diagonal">[0.2, 0.2, 1.0, 1.0, 1.0, 0.5]</rosparam>
+  </node>
+
+  <group ns="$(arg namespace)">
+    <node pkg="robot_localization"
+          type="ekf_localization_node"
+          name="ekf_dog_vins"
+          output="$(arg output)"
+          clear_params="true">
+      <rosparam command="load" file="$(arg config_file)"/>
+      <param name="odom0" value="$(arg adapted_vins_odom_topic)"/>
+      <param name="odom1" value="$(arg leg_odom_topic)"/>
+      <param name="imu0" value="$(arg imu_topic)"/>
+      <param name="publish_tf" value="$(arg publish_tf)"/>
+    </node>
+  </group>
+</launch>

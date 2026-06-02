@@ -35,6 +35,17 @@ roslaunch dog_vins_bringup dog_mono_imu_passive.launch
 This only runs VINS and expects another launch to provide `/camera/color/image_raw`
 and `/imu/data`.
 
+Loose external fusion mode:
+
+```bash
+roslaunch dog_vins_bringup dog_external_fusion.launch
+```
+
+This runs a separate `robot_localization` EKF using normalized VINS odometry,
+`/leg_odom2`, and `/imu/data`. It publishes under `/dog_vins_fusion` and does
+not publish TF by default, so it can be tested alongside the existing navigation
+stack.
+
 ## Notes
 
 - Parameters are file-based VINS YAML configs in this package, not global ROS params.

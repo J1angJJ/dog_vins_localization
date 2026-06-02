@@ -11,5 +11,9 @@
 
   <exec_depend>vins</exec_depend>
   <exec_depend>realsense2_camera</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
+  <depend>rospy</depend>
+  <depend>nav_msgs</depend>
+  <exec_depend>tf</exec_depend>
   <exec_depend>roslaunch</exec_depend>
 </package>

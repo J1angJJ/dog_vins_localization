@@ -273,7 +273,50 @@ rosbag play --clock ~/bags/dog_vins/vins_debug.bag
 
 ## 7. 需要标定或确认的内容
 
-### 7.1 相机内参
+## 7. 外部融合首版
+
+紧耦合做法是在 VINS 后端滑窗里加入腿部里程计因子，工程量较大。当前工程先提供松耦合首版：
+
+```bash
+roslaunch dog_vins_bringup dog_external_fusion.launch
+```
+
+输入：
+
+```text
+/dog_vins/vins_estimator/odometry -> /dog_vins/odom_base_link
+/leg_odom2
+/imu/data
+```
+
+输出：
+
+```text
+/dog_vins_fusion/odometry/filtered
+```
+
+用途：在不改 VINS 后端、不接管原导航 `/odometry/filtered` 的情况下，先验证 VINS、腿部里程计和机器狗 IMU 的松耦合效果。
+
+检查：
+
+```bash
+rostopic hz /dog_vins/odom_base_link
+rostopic hz /leg_odom2
+rostopic hz /imu/data
+rostopic hz /dog_vins_fusion/odometry/filtered
+```
+
+如果融合方向不对，优先调整：
+
+```bash
+roslaunch dog_vins_bringup dog_external_fusion.launch yaw_offset:=<rad>
+```
+
+当前 `publish_tf:=false`，不会和 `comp2026_ws` 里已有的 `odom -> base_link` TF 抢发布权。确认稳定后再讨论是否接入导航主链路。
+
+## 8. 需要标定或确认的内容
+
+### 8.1 相机内参
 
 当前文件：
 
@@ -302,7 +345,7 @@ D 是否需要写入畸变参数
 
 如果分辨率改为 `640x480` 或其他 profile，必须新建对应内参文件，不要复用 `1280x720` 内参。
 
-### 7.2 相机-IMU 外参
+### 8.2 相机-IMU 外参
 
 当前文件：
 
@@ -339,7 +382,7 @@ estimate_extrinsic: 0
 
 并把标定后的 `body_T_cam0` 写入配置。
 
-### 7.3 时间偏移
+### 8.3 时间偏移
 
 当前字段：
 
@@ -363,7 +406,7 @@ VINS 是否频繁提示时间同步或初始化异常
 estimate_td: 0
 ```
 
-### 7.4 IMU 噪声
+### 8.4 IMU 噪声
 
 当前字段：
 
@@ -385,7 +428,7 @@ accelerometer / gyroscope bias random walk
 
 建议：静止录制一段 `/camera/imu`，后续用 Allan variance 工具估计。
 
-### 7.5 里程计对照
+### 8.5 里程计对照
 
 当前独立链路不使用机器狗腿部里程计。
 
@@ -398,7 +441,7 @@ accelerometer / gyroscope bias random walk
 
 用途：只用于对比 VINS 轨迹，不建议首轮直接融合进导航。
 
-## 8. 常见问题
+## 9. 常见问题
 
 ### 没有 `/camera/imu`
 
@@ -474,7 +517,7 @@ IMU 单位
 
 处理：先静止录 `/camera/imu`，再低速短距离测试，不要直接上高速运动。
 
-## 9. 文件速查
+## 10. 文件速查
 
 ```text
 launch/dog_standalone_d435i_vins.launch
@@ -482,8 +525,10 @@ launch/dog_standalone_d435i_stereo.launch
 launch/dog_realsense_d435i_color_imu.launch
 launch/dog_realsense_d435i_stereo.launch
 launch/dog_mono_imu_passive.launch
+launch/dog_external_fusion.launch
 config/dog_mono_d435i_internal_imu_config.yaml
 config/dog_d435i_stereo_config.yaml
+config/dog_vins_external_fusion.yaml
 config/dog_mono_imu_config.yaml
 config/dog_color_pinhole_1280x720.yaml
 config/dog_d435i_infra_left_640x480.yaml
