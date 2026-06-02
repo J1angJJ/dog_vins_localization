@@ -271,8 +271,6 @@ rosbag play --clock ~/bags/dog_vins/vins_debug.bag
 
 用途：离线复现测试数据。回放前建议只启动 VINS，不再启动 RealSense。
 
-## 7. 需要标定或确认的内容
-
 ## 7. 外部融合首版
 
 紧耦合做法是在 VINS 后端滑窗里加入腿部里程计因子，工程量较大。当前工程先提供松耦合首版：
@@ -318,7 +316,7 @@ roslaunch dog_vins_bringup dog_external_fusion.launch yaw_offset:=<rad>
 
 ### 8.1 相机内参
 
-当前文件：
+当前 RGB 单目文件：
 
 ```text
 config/dog_color_pinhole_1280x720.yaml
@@ -344,6 +342,24 @@ D 是否需要写入畸变参数
 ```
 
 如果分辨率改为 `640x480` 或其他 profile，必须新建对应内参文件，不要复用 `1280x720` 内参。
+
+当前双目红外备用链路文件：
+
+```text
+config/dog_d435i_infra_left_640x480.yaml
+config/dog_d435i_infra_right_640x480.yaml
+```
+
+当前来源：2026-06-02 `rs-enumerate-devices -c` 记录的 Infrared 1/2 `640x480` 内参：
+
+```text
+fx/fy: 388.389587
+cx: 325.711243
+cy: 239.344116
+FOV: H 78.96 deg, V 63.43 deg
+```
+
+注意：`640x480` 红外横向 FOV 约 `78.96 deg`；如果后续想保留约 `89.34 deg` 横向 FOV，可改用 `848x480` 或 `640x360`，但必须同步新增对应 VINS 内参配置。
 
 ### 8.2 相机-IMU 外参
 

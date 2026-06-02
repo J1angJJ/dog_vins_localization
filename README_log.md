@@ -395,4 +395,5 @@ roslaunch dog_vins_bringup dog_mono_imu_passive.launch
 - 新增 D435i 双目红外 stereo-only 备用链路：`dog_standalone_d435i_stereo.launch`、`dog_realsense_d435i_stereo.launch`、`dog_d435i_stereo_config.yaml` 和左右红外 640x480 内参文件。该链路禁用 gyro/accel，用于绕开 D435i Motion Module 问题并继续验证 VINS 主体。
 - 2026-06-01 双目备用链路已在机器狗端确认三个核心 topic 有信息；新增 `initial_reset` 启动参数和静态检查说明，便于不移动机器狗时验证图像、特征跟踪和 VINS 输出状态。
 - 2026-06-02 增加松耦合外部融合首版：`vins_odom_adapter.py` 规范 VINS odometry frame 并清零首帧，`dog_external_fusion.launch` 使用 `robot_localization` 融合 `/dog_vins/odom_base_link`、`/leg_odom2`、`/imu/data`，默认输出 `/dog_vins_fusion/odometry/filtered` 且不发布 TF。
+- 2026-06-02 同步机器狗环境更新：感知主机为 Jetson Xavier NX / JetPack 5.1.2 / L4T 35.4.1，ROS Noetic，librealsense2 2.50.0，系统 OpenCV 4.2.0，Python cv2 4.9.0，Ceres 1.14.0；`robot_localization` 已存在。根据 `realsense-mod.txt` 将双目红外 640x480 内参更新为 fx/fy=388.389587、cx=325.711243、cy=239.344116，并将 stereo-only 初始基线设为 50.002 mm。
 - 未修改 VINS-Fusion 上游核心包；新增和调整均位于 `dog_vins_bringup` 适配包及本文档。

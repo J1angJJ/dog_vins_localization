@@ -25,6 +25,9 @@ accel, and runs VINS in stereo-only mode. Use it when `/camera/imu` is missing
 or the RealSense log reports `Motion Module failure`.
 Add `initial_reset:=true` when the camera was just interrupted or left in a bad
 runtime state.
+The infrared 640x480 intrinsics and the 50.002 mm stereo baseline are initialized
+from the 2026-06-02 `rs-enumerate-devices -c` record for D435i serial
+`244222075300`.
 
 Passive external IMU mode:
 
