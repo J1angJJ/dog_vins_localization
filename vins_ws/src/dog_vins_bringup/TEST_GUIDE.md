@@ -165,6 +165,13 @@ rostopic echo -n 1 /camera/infra2/camera_info
 
 用途：确认 stereo-only 模式的两路图像都接近 30 Hz，且分辨率为 `640x480`。
 
+`/dog_vins/vins_estimator/image_track` 是 VINS 的特征跟踪调试图，只有配置文件中 `show_track: 1` 时才会发布。当前 stereo-only 配置已默认打开：
+
+```text
+config/dog_d435i_stereo_config.yaml
+show_track: 1
+```
+
 检查 VINS 输出：
 
 ```bash
@@ -174,7 +181,7 @@ rostopic echo -n 1 /dog_vins/vins_estimator/odometry
 
 用途：确认 VINS 已经初始化并开始输出里程计。刚启动时可能需要移动一段才有稳定输出。
 
-注意：如果只静止放着，VINS 可能一直没有 `/dog_vins/vins_estimator/odometry` 消息。这不是 topic 不存在，而是尚未完成初始化。先确认 `/camera/color/image_raw`、`/camera/imu` 和 `/dog_vins/vins_estimator/image_track`。
+注意：如果只静止放着，VINS 可能一直没有 `/dog_vins/vins_estimator/odometry` 消息。这不是 topic 不存在，而是尚未完成初始化。先确认输入图像和 `/dog_vins/vins_estimator/image_track`。
 
 检查 VINS 路径：
 
