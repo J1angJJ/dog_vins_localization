@@ -38,7 +38,7 @@ odom1_config: [false, false, false,
 odom1_differential: false
 odom1_relative: false
 
-# External robot IMU from message_transformer/qnx2ros.
+# External robot IMU from dog_robot_bridge or the original robot state bridge.
 imu0: /imu/data
 imu0_queue_size: 100
 imu0_nodelay: true

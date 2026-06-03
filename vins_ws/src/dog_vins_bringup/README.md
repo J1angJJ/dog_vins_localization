@@ -60,11 +60,11 @@ constraints inside the optimization window. The default factor constrains
 translation distance and yaw only, which is safer before the camera/body/base
 axis alignment is calibrated.
 This launch publishes the known tilted-mount `base_link -> camera_link` static
-TF from `comp2026_ws`, but it does not create `/leg_odom2`; that topic is
-published by `message_transformer/qnx2ros` on the real robot.
+TF using the same calibrated values as `comp2026_ws`, but it does not create
+`/leg_odom2`; that topic must be provided by a robot state bridge.
 
-Real-robot convenience wrapper, only when `message_transformer` from
-`comp2026_ws` is available in `ROS_PACKAGE_PATH`:
+Real-robot convenience wrapper using the read-only `dog_robot_bridge` in this
+repository:
 
 ```bash
 roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.launch

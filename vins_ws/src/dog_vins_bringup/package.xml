@@ -10,6 +10,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <exec_depend>vins</exec_depend>
+  <exec_depend>dog_robot_bridge</exec_depend>
   <exec_depend>realsense2_camera</exec_depend>
   <exec_depend>robot_localization</exec_depend>
   <depend>rospy</depend>

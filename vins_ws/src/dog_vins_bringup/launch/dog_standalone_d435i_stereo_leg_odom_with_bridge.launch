@@ -1,7 +1,7 @@
 <launch>
   <!--
     Convenience wrapper for real-robot tests.
-    Requires message_transformer from comp2026_ws to be available in ROS_PACKAGE_PATH.
+    Starts the read-only localization bridge in this repository.
   -->
   <arg name="namespace" default="dog_vins"/>
   <arg name="serial_no" default=""/>
@@ -12,8 +12,18 @@
   <arg name="start_rviz" default="false"/>
   <arg name="output" default="screen"/>
   <arg name="publish_camera_base_tf" default="true"/>
+  <arg name="bridge_server_port" default="43897"/>
+  <arg name="bridge_publish_imu" default="true"/>
+  <arg name="bridge_publish_joint_states" default="false"/>
+  <arg name="bridge_publish_aux_states" default="true"/>
 
-  <include file="$(find message_transformer)/launch/message_transformer.launch"/>
+  <include file="$(find dog_robot_bridge)/launch/dog_robot_state_bridge.launch">
+    <arg name="server_port" value="$(arg bridge_server_port)"/>
+    <arg name="publish_imu" value="$(arg bridge_publish_imu)"/>
+    <arg name="publish_joint_states" value="$(arg bridge_publish_joint_states)"/>
+    <arg name="publish_aux_states" value="$(arg bridge_publish_aux_states)"/>
+    <arg name="output" value="$(arg output)"/>
+  </include>
 
   <include file="$(find dog_vins_bringup)/launch/dog_standalone_d435i_stereo_leg_odom.launch">
     <arg name="namespace" value="$(arg namespace)"/>

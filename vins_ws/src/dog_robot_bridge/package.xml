@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>dog_robot_bridge</name>
+  <version>0.1.0</version>
+  <description>Read-only Lite3 robot state bridge for dog VINS localization.</description>
+
+  <maintainer email="todo@example.com">dog_vins_localization</maintainer>
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>roscpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>tf</depend>
+</package>

@@ -357,13 +357,12 @@ roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom.launch
 ```
 
 注意：这个 launch 会启动 D435i、VINS 和已知的 `base_link -> camera_link`
-静态 TF，但不会生成 `/leg_odom2`。`/leg_odom2` 来自机器狗桥接
-`message_transformer/qnx2ros`。实机测试有两种方式：
+静态 TF，但不会生成 `/leg_odom2`。实机测试有两种方式：
 
 ```bash
-# 方式 A：终端 1 先启动机器狗桥接
-source ~/comp2026_ws/devel/setup.bash
-roslaunch message_transformer message_transformer.launch
+# 方式 A：终端 1 先启动本仓库的只读机器狗状态桥接
+source ~/dog_vins_localization/vins_ws/devel/setup.bash
+roslaunch dog_robot_bridge dog_robot_state_bridge.launch
 
 # 终端 2 再启动 VINS 紧耦合
 source ~/dog_vins_localization/vins_ws/devel/setup.bash
@@ -371,9 +370,7 @@ roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom.launch
 ```
 
 ```bash
-# 方式 B：如果 comp2026_ws 和 dog_vins_localization/vins_ws 都已 source，
-# 用 wrapper 一次拉起桥接、相机和 VINS
-source ~/comp2026_ws/devel/setup.bash
+# 方式 B：用 wrapper 一次拉起桥接、相机和 VINS
 source ~/dog_vins_localization/vins_ws/devel/setup.bash
 roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.launch
 ```
@@ -663,6 +660,8 @@ config/dog_mono_imu_config.yaml
 config/dog_color_pinhole_1280x720.yaml
 config/dog_d435i_infra_left_640x480.yaml
 config/dog_d435i_infra_right_640x480.yaml
+../dog_robot_bridge/launch/dog_robot_state_bridge.launch
+../dog_robot_bridge/src/dog_qnx_state_bridge.cpp
 README.md
 TEST_GUIDE.md
 ```

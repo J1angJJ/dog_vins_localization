@@ -1,0 +1,23 @@
+<launch>
+  <arg name="server_port" default="43897"/>
+  <arg name="publish_imu" default="true"/>
+  <arg name="publish_joint_states" default="false"/>
+  <arg name="publish_aux_states" default="true"/>
+  <arg name="odom_frame_id" default="odom"/>
+  <arg name="base_frame_id" default="base_link"/>
+  <arg name="imu_frame_id" default="base_link"/>
+  <arg name="output" default="screen"/>
+
+  <node pkg="dog_robot_bridge"
+        type="dog_qnx_state_bridge"
+        name="dog_qnx_state_bridge"
+        output="$(arg output)">
+    <param name="server_port" value="$(arg server_port)"/>
+    <param name="publish_imu" value="$(arg publish_imu)"/>
+    <param name="publish_joint_states" value="$(arg publish_joint_states)"/>
+    <param name="publish_aux_states" value="$(arg publish_aux_states)"/>
+    <param name="odom_frame_id" value="$(arg odom_frame_id)"/>
+    <param name="base_frame_id" value="$(arg base_frame_id)"/>
+    <param name="imu_frame_id" value="$(arg imu_frame_id)"/>
+  </node>
+</launch>
