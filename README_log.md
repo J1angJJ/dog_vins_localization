@@ -397,4 +397,6 @@ roslaunch dog_vins_bringup dog_mono_imu_passive.launch
 - 2026-06-02 增加松耦合外部融合首版：`vins_odom_adapter.py` 规范 VINS odometry frame 并清零首帧，`dog_external_fusion.launch` 使用 `robot_localization` 融合 `/dog_vins/odom_base_link`、`/leg_odom2`、`/imu/data`，默认输出 `/dog_vins_fusion/odometry/filtered` 且不发布 TF。
 - 2026-06-02 同步机器狗环境更新：感知主机为 Jetson Xavier NX / JetPack 5.1.2 / L4T 35.4.1，ROS Noetic，librealsense2 2.50.0，系统 OpenCV 4.2.0，Python cv2 4.9.0，Ceres 1.14.0；`robot_localization` 已存在。根据 `realsense-mod.txt` 将双目红外 640x480 内参更新为 fx/fy=388.389587、cx=325.711243、cy=239.344116，并将 stereo-only 初始基线设为 50.002 mm。
 - 2026-06-02 实机测试发现 stereo-only 的 `/dog_vins/vins_estimator/image_track` 无输出，确认原因是 `show_track: 0`；已将 `dog_d435i_stereo_config.yaml` 改为 `show_track: 1`，用于首轮调试观察特征跟踪。
+- 2026-06-02 实机录包 30 秒约 5.8GB 且触发 rosbag buffer 压力；测试手册新增轻量尺度测试包和 10 秒图像调试包命令，默认建议尺度测试不录 raw 图像和 `image_track`。
+- 2026-06-03 增加 VINS 后端紧耦合工程原型：新增 `LegOdomFactor`，订阅 `/leg_odom2`，在 VINS 滑窗相邻帧之间加入腿部里程计相对约束；默认因子模式为 translation distance + yaw，避免未标定 base/camera 轴系时把 dx/dy 硬绑错。新增入口 `dog_standalone_d435i_stereo_leg_odom.launch` 和配置 `dog_d435i_stereo_leg_odom_config.yaml`。
 - 未修改 VINS-Fusion 上游核心包；新增和调整均位于 `dog_vins_bringup` 适配包及本文档。

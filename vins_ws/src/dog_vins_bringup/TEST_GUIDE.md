@@ -269,6 +269,35 @@ rosbag record -O ~/bags/dog_vins/vins_debug.bag \
 
 用途：记录更多 VINS 输出，适合排查外参、IMU 传播和轨迹跳变。
 
+轻量尺度测试包：
+
+```bash
+rosbag record --lz4 --buffsize=2048 -O ~/bags/dog_vins/straight_1m_scale_light.bag \
+  /dog_vins/vins_estimator/odometry \
+  /dog_vins/vins_estimator/path \
+  /leg_odom2 \
+  /imu/data \
+  /tf \
+  /tf_static
+```
+
+用途：只判断 VINS 轨迹尺度、腿部里程计对照和融合输入是否正常，不记录大体积 raw 图像。优先用于 1 米直线、往返和旋转测试。
+
+带图像的短调试包：
+
+```bash
+rosbag record --lz4 --buffsize=4096 --duration=10 -O ~/bags/dog_vins/stereo_debug_10s.bag \
+  /camera/infra1/image_rect_raw \
+  /camera/infra2/image_rect_raw \
+  /camera/infra1/camera_info \
+  /camera/infra2/camera_info \
+  /dog_vins/vins_estimator/image_track \
+  /dog_vins/vins_estimator/odometry \
+  /dog_vins/vins_estimator/path
+```
+
+用途：只在需要排查图像、同步或特征跟踪时短录。不要长时间同时录左右 raw 图像和 `image_track`，否则包体积会快速变大并可能触发 rosbag buffer 溢出。
+
 回放录包：
 
 ```bash
@@ -319,9 +348,61 @@ roslaunch dog_vins_bringup dog_external_fusion.launch yaw_offset:=<rad>
 
 当前 `publish_tf:=false`，不会和 `comp2026_ws` 里已有的 `odom -> base_link` TF 抢发布权。确认稳定后再讨论是否接入导航主链路。
 
-## 8. 需要标定或确认的内容
+## 8. 紧耦合原型
 
-### 8.1 相机内参
+启动双目 VINS，并在 VINS 滑窗优化中加入 `/leg_odom2` 相对约束：
+
+```bash
+roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom.launch
+```
+
+输入：
+
+```text
+/camera/infra1/image_rect_raw
+/camera/infra2/image_rect_raw
+/leg_odom2
+```
+
+当前原型默认使用：
+
+```text
+leg_odom_factor_mode: 0
+```
+
+含义：只约束相邻帧平移距离和 yaw，不直接约束局部 dx/dy。这样在 `body_T_cam` 尚未严格等同 `base_link -> camera` 外参前，不会把机器狗底盘坐标轴和相机光学坐标轴硬绑错。
+
+检查：
+
+```bash
+rostopic hz /leg_odom2
+rostopic hz /dog_vins/vins_estimator/odometry
+rostopic hz /dog_vins/vins_estimator/path
+```
+
+轻量录包：
+
+```bash
+rosbag record --lz4 --buffsize=2048 -O ~/bags/dog_vins/tight_leg_odom_test.bag \
+  /dog_vins/vins_estimator/odometry \
+  /dog_vins/vins_estimator/path \
+  /leg_odom2 \
+  /imu/data \
+  /tf \
+  /tf_static
+```
+
+后续若已标定 `base_link` 与 VINS body/camera 的轴向关系，可尝试：
+
+```text
+leg_odom_factor_mode: 1
+```
+
+含义：约束相邻帧局部 dx、dy 和 yaw，约束更强，但错误外参会明显拉坏轨迹。
+
+## 9. 需要标定或确认的内容
+
+### 9.1 相机内参
 
 当前 RGB 单目文件：
 
@@ -368,7 +449,7 @@ FOV: H 78.96 deg, V 63.43 deg
 
 注意：`640x480` 红外横向 FOV 约 `78.96 deg`；如果后续想保留约 `89.34 deg` 横向 FOV，可改用 `848x480` 或 `640x360`，但必须同步新增对应 VINS 内参配置。
 
-### 8.2 相机-IMU 外参
+### 9.2 相机-IMU 外参
 
 当前文件：
 
@@ -405,7 +486,7 @@ estimate_extrinsic: 0
 
 并把标定后的 `body_T_cam0` 写入配置。
 
-### 8.3 时间偏移
+### 9.3 时间偏移
 
 当前字段：
 
@@ -429,7 +510,7 @@ VINS 是否频繁提示时间同步或初始化异常
 estimate_td: 0
 ```
 
-### 8.4 IMU 噪声
+### 9.4 IMU 噪声
 
 当前字段：
 
@@ -451,7 +532,7 @@ accelerometer / gyroscope bias random walk
 
 建议：静止录制一段 `/camera/imu`，后续用 Allan variance 工具估计。
 
-### 8.5 里程计对照
+### 9.5 里程计对照
 
 当前独立链路不使用机器狗腿部里程计。
 
@@ -464,7 +545,7 @@ accelerometer / gyroscope bias random walk
 
 用途：只用于对比 VINS 轨迹，不建议首轮直接融合进导航。
 
-## 9. 常见问题
+## 10. 常见问题
 
 ### 没有 `/camera/imu`
 
@@ -540,7 +621,7 @@ IMU 单位
 
 处理：先静止录 `/camera/imu`，再低速短距离测试，不要直接上高速运动。
 
-## 10. 文件速查
+## 11. 文件速查
 
 ```text
 launch/dog_standalone_d435i_vins.launch
@@ -549,8 +630,10 @@ launch/dog_realsense_d435i_color_imu.launch
 launch/dog_realsense_d435i_stereo.launch
 launch/dog_mono_imu_passive.launch
 launch/dog_external_fusion.launch
+launch/dog_standalone_d435i_stereo_leg_odom.launch
 config/dog_mono_d435i_internal_imu_config.yaml
 config/dog_d435i_stereo_config.yaml
+config/dog_d435i_stereo_leg_odom_config.yaml
 config/dog_vins_external_fusion.yaml
 config/dog_mono_imu_config.yaml
 config/dog_color_pinhole_1280x720.yaml

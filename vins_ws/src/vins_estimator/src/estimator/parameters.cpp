@@ -8,6 +8,7 @@
  *******************************************************/
 
 #include "parameters.h"
+#include <algorithm>
 
 double INIT_DEPTH;
 double MIN_PARALLAX;
@@ -45,6 +46,16 @@ int MIN_DIST;
 double F_THRESHOLD;
 int SHOW_TRACK;
 int FLOW_BACK;
+int USE_LEG_ODOM;
+std::string LEG_ODOM_TOPIC;
+int LEG_ODOM_FACTOR_MODE;
+double LEG_ODOM_MAX_TIME_DIFF;
+double LEG_ODOM_POS_STD;
+double LEG_ODOM_YAW_STD;
+double LEG_ODOM_LOSS;
+double LEG_ODOM_MIN_TRANSLATION;
+double LEG_ODOM_MAX_TRANSLATION;
+double LEG_ODOM_MAX_YAW;
 
 
 template <typename T>
@@ -86,6 +97,54 @@ void readParameters(std::string config_file)
     F_THRESHOLD = fsSettings["F_threshold"];
     SHOW_TRACK = fsSettings["show_track"];
     FLOW_BACK = fsSettings["flow_back"];
+
+    USE_LEG_ODOM = 0;
+    LEG_ODOM_TOPIC = "/leg_odom2";
+    LEG_ODOM_FACTOR_MODE = 0;
+    LEG_ODOM_MAX_TIME_DIFF = 0.05;
+    LEG_ODOM_POS_STD = 0.10;
+    LEG_ODOM_YAW_STD = 0.10;
+    LEG_ODOM_LOSS = 1.0;
+    LEG_ODOM_MIN_TRANSLATION = 0.005;
+    LEG_ODOM_MAX_TRANSLATION = 1.0;
+    LEG_ODOM_MAX_YAW = 1.0;
+
+    if (!fsSettings["use_leg_odom"].empty())
+        USE_LEG_ODOM = static_cast<int>(fsSettings["use_leg_odom"]);
+    if (!fsSettings["leg_odom_topic"].empty())
+        fsSettings["leg_odom_topic"] >> LEG_ODOM_TOPIC;
+    if (!fsSettings["leg_odom_factor_mode"].empty())
+        LEG_ODOM_FACTOR_MODE = static_cast<int>(fsSettings["leg_odom_factor_mode"]);
+    if (!fsSettings["leg_odom_max_time_diff"].empty())
+        LEG_ODOM_MAX_TIME_DIFF = static_cast<double>(fsSettings["leg_odom_max_time_diff"]);
+    if (!fsSettings["leg_odom_pos_std"].empty())
+        LEG_ODOM_POS_STD = static_cast<double>(fsSettings["leg_odom_pos_std"]);
+    if (!fsSettings["leg_odom_yaw_std"].empty())
+        LEG_ODOM_YAW_STD = static_cast<double>(fsSettings["leg_odom_yaw_std"]);
+    if (!fsSettings["leg_odom_loss"].empty())
+        LEG_ODOM_LOSS = static_cast<double>(fsSettings["leg_odom_loss"]);
+    if (!fsSettings["leg_odom_min_translation"].empty())
+        LEG_ODOM_MIN_TRANSLATION = static_cast<double>(fsSettings["leg_odom_min_translation"]);
+    if (!fsSettings["leg_odom_max_translation"].empty())
+        LEG_ODOM_MAX_TRANSLATION = static_cast<double>(fsSettings["leg_odom_max_translation"]);
+    if (!fsSettings["leg_odom_max_yaw"].empty())
+        LEG_ODOM_MAX_YAW = static_cast<double>(fsSettings["leg_odom_max_yaw"]);
+
+    LEG_ODOM_FACTOR_MODE = (LEG_ODOM_FACTOR_MODE == 1) ? 1 : 0;
+    LEG_ODOM_MAX_TIME_DIFF = std::max(LEG_ODOM_MAX_TIME_DIFF, 0.001);
+    LEG_ODOM_POS_STD = std::max(LEG_ODOM_POS_STD, 1e-4);
+    LEG_ODOM_YAW_STD = std::max(LEG_ODOM_YAW_STD, 1e-4);
+    LEG_ODOM_LOSS = std::max(LEG_ODOM_LOSS, 1e-4);
+    LEG_ODOM_MIN_TRANSLATION = std::max(LEG_ODOM_MIN_TRANSLATION, 0.0);
+    LEG_ODOM_MAX_TRANSLATION = std::max(LEG_ODOM_MAX_TRANSLATION, LEG_ODOM_MIN_TRANSLATION + 1e-4);
+    LEG_ODOM_MAX_YAW = std::max(LEG_ODOM_MAX_YAW, 1e-4);
+
+    if (USE_LEG_ODOM)
+    {
+        printf("USE_LEG_ODOM: %d\n", USE_LEG_ODOM);
+        printf("LEG_ODOM_TOPIC: %s\n", LEG_ODOM_TOPIC.c_str());
+        printf("LEG_ODOM_FACTOR_MODE: %d\n", LEG_ODOM_FACTOR_MODE);
+    }
 
     MULTIPLE_THREAD = fsSettings["multiple_thread"];
 

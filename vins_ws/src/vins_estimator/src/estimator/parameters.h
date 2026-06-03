@@ -64,6 +64,17 @@ extern double F_THRESHOLD;
 extern int SHOW_TRACK;
 extern int FLOW_BACK;
 
+extern int USE_LEG_ODOM;
+extern std::string LEG_ODOM_TOPIC;
+extern int LEG_ODOM_FACTOR_MODE;
+extern double LEG_ODOM_MAX_TIME_DIFF;
+extern double LEG_ODOM_POS_STD;
+extern double LEG_ODOM_YAW_STD;
+extern double LEG_ODOM_LOSS;
+extern double LEG_ODOM_MIN_TRANSLATION;
+extern double LEG_ODOM_MAX_TRANSLATION;
+extern double LEG_ODOM_MAX_YAW;
+
 void readParameters(std::string config_file);
 
 enum SIZE_PARAMETERIZATION

@@ -14,8 +14,10 @@
 #include <map>
 #include <thread>
 #include <mutex>
+#include <cmath>
 #include <ros/ros.h>
 #include <cv_bridge/cv_bridge.h>
+#include <nav_msgs/Odometry.h>
 #include <opencv2/opencv.hpp>
 #include "estimator/estimator.h"
 #include "estimator/parameters.h"
@@ -147,6 +149,15 @@ void imu_callback(const sensor_msgs::ImuConstPtr &imu_msg)
     return;
 }
 
+void leg_odom_callback(const nav_msgs::OdometryConstPtr &odom_msg)
+{
+    const auto &p = odom_msg->pose.pose.position;
+    const auto &q = odom_msg->pose.pose.orientation;
+    const double yaw = std::atan2(2.0 * (q.w * q.z + q.x * q.y),
+                                  1.0 - 2.0 * (q.y * q.y + q.z * q.z));
+    estimator.inputLegOdom(odom_msg->header.stamp.toSec(), p.x, p.y, yaw);
+}
+
 
 void feature_callback(const sensor_msgs::PointCloudConstPtr &feature_msg)
 {
@@ -253,6 +264,11 @@ int main(int argc, char **argv)
     if(USE_IMU)
     {
         sub_imu = n.subscribe(IMU_TOPIC, 2000, imu_callback, ros::TransportHints().tcpNoDelay());
+    }
+    ros::Subscriber sub_leg_odom;
+    if(USE_LEG_ODOM)
+    {
+        sub_leg_odom = n.subscribe(LEG_ODOM_TOPIC, 2000, leg_odom_callback, ros::TransportHints().tcpNoDelay());
     }
     ros::Subscriber sub_feature = n.subscribe("/feature_tracker/feature", 2000, feature_callback);
     ros::Subscriber sub_img0 = n.subscribe(IMAGE0_TOPIC, 100, img0_callback);

@@ -39,7 +39,9 @@ include_directories(
   ${EIGEN3_INCLUDE_DIR}
 )
 
-catkin_package()
+catkin_package(
+    CATKIN_DEPENDS roscpp std_msgs geometry_msgs nav_msgs tf cv_bridge camera_models image_transport
+)
 
 add_library(vins_lib
     src/estimator/parameters.cpp
@@ -49,6 +51,7 @@ add_library(vins_lib
     src/factor/projectionTwoFrameOneCamFactor.cpp
     src/factor/projectionTwoFrameTwoCamFactor.cpp
     src/factor/projectionOneFrameTwoCamFactor.cpp
+    src/factor/leg_odom_factor.cpp
     src/factor/marginalization_factor.cpp
     src/utility/utility.cpp
     src/utility/visualization.cpp

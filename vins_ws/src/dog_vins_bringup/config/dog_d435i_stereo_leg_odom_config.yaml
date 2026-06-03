@@ -1,0 +1,74 @@
+%YAML:1.0
+
+# D435i stereo + leg odometry relative factor.
+# First-pass tightly-coupled engineering prototype:
+# - visual residuals remain unchanged;
+# - /leg_odom2 adds adjacent-frame relative constraints inside the VINS window;
+# - default factor mode constrains translation distance + yaw, which is robust
+#   before camera/body/base axes are fully calibrated.
+imu: 0
+num_of_cam: 2
+
+image0_topic: "/camera/infra1/image_rect_raw"
+image1_topic: "/camera/infra2/image_rect_raw"
+output_path: "/tmp/dog_vins_output"
+
+cam0_calib: "dog_d435i_infra_left_640x480.yaml"
+cam1_calib: "dog_d435i_infra_right_640x480.yaml"
+image_width: 640
+image_height: 480
+
+estimate_extrinsic: 0
+
+body_T_cam0: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: d
+   data: [ 1., 0., 0., 0.,
+           0., 1., 0., 0.,
+           0., 0., 1., 0.,
+           0., 0., 0., 1. ]
+
+body_T_cam1: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: d
+   data: [ 1., 0., 0., 0.0500022396445274,
+           0., 1., 0., 0.,
+           0., 0., 1., 0.,
+           0., 0., 0., 1. ]
+
+multiple_thread: 1
+
+max_cnt: 150
+min_dist: 30
+freq: 10
+F_threshold: 1.0
+show_track: 1
+flow_back: 1
+
+max_solver_time: 0.04
+max_num_iterations: 8
+keyframe_parallax: 10.0
+
+estimate_td: 0
+td: 0.0
+
+# Leg odometry factor parameters.
+use_leg_odom: 1
+leg_odom_topic: "/leg_odom2"
+
+# 0: translation distance + yaw. Robust before base/camera axes are calibrated.
+# 1: local dx + dy + yaw. Use only after body_T_cam and base/body alignment are known.
+leg_odom_factor_mode: 0
+leg_odom_max_time_diff: 0.06
+leg_odom_pos_std: 0.08
+leg_odom_yaw_std: 0.12
+leg_odom_loss: 1.0
+leg_odom_min_translation: 0.003
+leg_odom_max_translation: 0.8
+leg_odom_max_yaw: 0.8
+
+load_previous_pose_graph: 0
+pose_graph_save_path: "/tmp/dog_vins_output/pose_graph/"
+save_image: 0

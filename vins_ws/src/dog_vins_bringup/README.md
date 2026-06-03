@@ -49,6 +49,17 @@ This runs a separate `robot_localization` EKF using normalized VINS odometry,
 not publish TF by default, so it can be tested alongside the existing navigation
 stack.
 
+Stereo + leg odometry in-window factor:
+
+```bash
+roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom.launch
+```
+
+This keeps the VINS visual backend but adds adjacent-frame `/leg_odom2` relative
+constraints inside the optimization window. The default factor constrains
+translation distance and yaw only, which is safer before the camera/body/base
+axis alignment is calibrated.
+
 ## Notes
 
 - Parameters are file-based VINS YAML configs in this package, not global ROS params.

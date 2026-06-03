@@ -1,0 +1,38 @@
+<launch>
+  <!--
+    Standalone D435i stereo plus in-window leg odometry relative factors.
+    Requires /leg_odom2 to be published by the robot motion bridge.
+  -->
+  <arg name="config_file" default="$(find dog_vins_bringup)/config/dog_d435i_stereo_leg_odom_config.yaml"/>
+  <arg name="namespace" default="dog_vins"/>
+  <arg name="serial_no" default=""/>
+  <arg name="infra_width" default="640"/>
+  <arg name="infra_height" default="480"/>
+  <arg name="infra_fps" default="30"/>
+  <arg name="initial_reset" default="false"/>
+  <arg name="start_rviz" default="false"/>
+  <arg name="output" default="screen"/>
+
+  <include file="$(find dog_vins_bringup)/launch/dog_realsense_d435i_stereo.launch">
+    <arg name="serial_no" value="$(arg serial_no)"/>
+    <arg name="infra_width" value="$(arg infra_width)"/>
+    <arg name="infra_height" value="$(arg infra_height)"/>
+    <arg name="infra_fps" value="$(arg infra_fps)"/>
+    <arg name="initial_reset" value="$(arg initial_reset)"/>
+  </include>
+
+  <group ns="$(arg namespace)">
+    <node pkg="vins"
+          type="vins_node"
+          name="vins_estimator"
+          output="$(arg output)"
+          launch-prefix="bash -lc 'mkdir -p /tmp/dog_vins_output/pose_graph; exec &quot;$@&quot;' bash"
+          args="$(arg config_file)"/>
+  </group>
+
+  <node if="$(arg start_rviz)"
+        pkg="rviz"
+        type="rviz"
+        name="dog_vins_rviz"
+        args="-d $(find vins)/../config/vins_rviz_config.rviz"/>
+</launch>

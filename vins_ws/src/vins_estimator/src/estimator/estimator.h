@@ -16,6 +16,7 @@
 #include <ceres/ceres.h>
 #include <unordered_map>
 #include <queue>
+#include <deque>
 #include <opencv2/core/eigen.hpp>
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Geometry>
@@ -34,8 +35,23 @@
 #include "../factor/projectionTwoFrameOneCamFactor.h"
 #include "../factor/projectionTwoFrameTwoCamFactor.h"
 #include "../factor/projectionOneFrameTwoCamFactor.h"
+#include "../factor/leg_odom_factor.h"
 #include "../featureTracker/feature_tracker.h"
 
+struct LegOdomSample
+{
+    double t;
+    double x;
+    double y;
+    double yaw;
+};
+
+struct LegOdomRelative
+{
+    double dx;
+    double dy;
+    double dyaw;
+};
 
 class Estimator
 {
@@ -47,6 +63,7 @@ class Estimator
     // interface
     void initFirstPose(Eigen::Vector3d p, Eigen::Matrix3d r);
     void inputIMU(double t, const Vector3d &linearAcceleration, const Vector3d &angularVelocity);
+    void inputLegOdom(double t, double x, double y, double yaw);
     void inputFeature(double t, const map<int, vector<pair<int, Eigen::Matrix<double, 7, 1>>>> &featureFrame);
     void inputImage(double t, const cv::Mat &_img, const cv::Mat &_img1 = cv::Mat());
     void processIMU(double t, double dt, const Vector3d &linear_acceleration, const Vector3d &angular_velocity);
@@ -79,6 +96,7 @@ class Estimator
     void fastPredictIMU(double t, Eigen::Vector3d linear_acceleration, Eigen::Vector3d angular_velocity);
     bool IMUAvailable(double t);
     void initFirstIMUPose(vector<pair<double, Eigen::Vector3d>> &accVector);
+    bool getLegOdomRelative(double t0, double t1, LegOdomRelative &relative);
 
     enum SolverFlag
     {
@@ -98,6 +116,7 @@ class Estimator
     queue<pair<double, Eigen::Vector3d>> accBuf;
     queue<pair<double, Eigen::Vector3d>> gyrBuf;
     queue<pair<double, map<int, vector<pair<int, Eigen::Matrix<double, 7, 1> > > > > > featureBuf;
+    std::deque<LegOdomSample> legOdomBuf;
     double prevTime, curTime;
     bool openExEstimation;
 

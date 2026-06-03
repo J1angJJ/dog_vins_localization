@@ -10,6 +10,14 @@
 #include "estimator.h"
 #include "../utility/visualization.h"
 
+namespace
+{
+double normalizeAngleRad(double angle)
+{
+    return std::atan2(std::sin(angle), std::cos(angle));
+}
+}
+
 Estimator::Estimator(): f_manager{Rs}
 {
     ROS_INFO("init begins");
@@ -35,6 +43,7 @@ void Estimator::clearState()
         gyrBuf.pop();
     while(!featureBuf.empty())
         featureBuf.pop();
+    legOdomBuf.clear();
 
     prevTime = -1;
     curTime = 0;
@@ -213,6 +222,18 @@ void Estimator::inputIMU(double t, const Vector3d &linearAcceleration, const Vec
     }
 }
 
+void Estimator::inputLegOdom(double t, double x, double y, double yaw)
+{
+    if (!USE_LEG_ODOM)
+        return;
+
+    mBuf.lock();
+    legOdomBuf.push_back({t, x, y, yaw});
+    while (legOdomBuf.size() > 2000)
+        legOdomBuf.pop_front();
+    mBuf.unlock();
+}
+
 void Estimator::inputFeature(double t, const map<int, vector<pair<int, Eigen::Matrix<double, 7, 1>>>> &featureFrame)
 {
     mBuf.lock();
@@ -265,6 +286,62 @@ bool Estimator::IMUAvailable(double t)
         return true;
     else
         return false;
+}
+
+bool Estimator::getLegOdomRelative(double t0, double t1, LegOdomRelative &relative)
+{
+    if (!USE_LEG_ODOM || t1 <= t0)
+        return false;
+
+    mBuf.lock();
+    if (legOdomBuf.size() < 2)
+    {
+        mBuf.unlock();
+        return false;
+    }
+
+    auto nearest = [&](double t, LegOdomSample &sample) -> bool
+    {
+        double best_dt = 1e9;
+        bool found = false;
+        for (const auto &item : legOdomBuf)
+        {
+            double dt = std::fabs(item.t - t);
+            if (dt < best_dt)
+            {
+                best_dt = dt;
+                sample = item;
+                found = true;
+            }
+        }
+        return found && best_dt <= LEG_ODOM_MAX_TIME_DIFF;
+    };
+
+    LegOdomSample odom0, odom1;
+    bool ok = nearest(t0, odom0) && nearest(t1, odom1);
+
+    while (!legOdomBuf.empty() && legOdomBuf.front().t < t0 - 2.0)
+        legOdomBuf.pop_front();
+    mBuf.unlock();
+
+    if (!ok)
+        return false;
+
+    const double c = std::cos(odom0.yaw);
+    const double s = std::sin(odom0.yaw);
+    const double wx = odom1.x - odom0.x;
+    const double wy = odom1.y - odom0.y;
+    relative.dx = c * wx + s * wy;
+    relative.dy = -s * wx + c * wy;
+    relative.dyaw = normalizeAngleRad(odom1.yaw - odom0.yaw);
+
+    const double translation = std::hypot(relative.dx, relative.dy);
+    if (translation < LEG_ODOM_MIN_TRANSLATION && std::fabs(relative.dyaw) < 1e-4)
+        return false;
+    if (translation > LEG_ODOM_MAX_TRANSLATION || std::fabs(relative.dyaw) > LEG_ODOM_MAX_YAW)
+        return false;
+
+    return true;
 }
 
 void Estimator::processMeasurements()
@@ -1059,6 +1136,25 @@ void Estimator::optimization()
             IMUFactor* imu_factor = new IMUFactor(pre_integrations[j]);
             problem.AddResidualBlock(imu_factor, NULL, para_Pose[i], para_SpeedBias[i], para_Pose[j], para_SpeedBias[j]);
         }
+    }
+    if(USE_LEG_ODOM)
+    {
+        int leg_factor_count = 0;
+        for (int i = 0; i < frame_count; i++)
+        {
+            int j = i + 1;
+            LegOdomRelative relative;
+            if (!getLegOdomRelative(Headers[i], Headers[j], relative))
+                continue;
+
+            ceres::CostFunction *leg_factor = LegOdomFactor::Create(relative.dx, relative.dy, relative.dyaw,
+                                                                    LEG_ODOM_POS_STD, LEG_ODOM_YAW_STD,
+                                                                    LEG_ODOM_FACTOR_MODE);
+            ceres::LossFunction *leg_loss = new ceres::CauchyLoss(LEG_ODOM_LOSS);
+            problem.AddResidualBlock(leg_factor, leg_loss, para_Pose[i], para_Pose[j]);
+            leg_factor_count++;
+        }
+        ROS_DEBUG("leg odom factor count: %d", leg_factor_count);
     }
 
     int f_m_cnt = 0;
