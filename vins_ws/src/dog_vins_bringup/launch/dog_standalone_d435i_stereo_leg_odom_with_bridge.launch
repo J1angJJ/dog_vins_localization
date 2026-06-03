@@ -1,0 +1,29 @@
+<launch>
+  <!--
+    Convenience wrapper for real-robot tests.
+    Requires message_transformer from comp2026_ws to be available in ROS_PACKAGE_PATH.
+  -->
+  <arg name="namespace" default="dog_vins"/>
+  <arg name="serial_no" default=""/>
+  <arg name="infra_width" default="640"/>
+  <arg name="infra_height" default="480"/>
+  <arg name="infra_fps" default="30"/>
+  <arg name="initial_reset" default="false"/>
+  <arg name="start_rviz" default="false"/>
+  <arg name="output" default="screen"/>
+  <arg name="publish_camera_base_tf" default="true"/>
+
+  <include file="$(find message_transformer)/launch/message_transformer.launch"/>
+
+  <include file="$(find dog_vins_bringup)/launch/dog_standalone_d435i_stereo_leg_odom.launch">
+    <arg name="namespace" value="$(arg namespace)"/>
+    <arg name="serial_no" value="$(arg serial_no)"/>
+    <arg name="infra_width" value="$(arg infra_width)"/>
+    <arg name="infra_height" value="$(arg infra_height)"/>
+    <arg name="infra_fps" value="$(arg infra_fps)"/>
+    <arg name="initial_reset" value="$(arg initial_reset)"/>
+    <arg name="start_rviz" value="$(arg start_rviz)"/>
+    <arg name="output" value="$(arg output)"/>
+    <arg name="publish_camera_base_tf" value="$(arg publish_camera_base_tf)"/>
+  </include>
+</launch>
