@@ -11,8 +11,10 @@
   <arg name="infra_fps" default="30"/>
   <arg name="initial_reset" default="false"/>
   <arg name="start_rviz" default="false"/>
+  <arg name="rviz_config" default="$(find dog_vins_bringup)/config/dog_vins_localization.rviz"/>
   <arg name="output" default="screen"/>
   <arg name="publish_camera_base_tf" default="true"/>
+  <arg name="publish_world_odom_tf" default="true"/>
 
   <include file="$(find dog_vins_bringup)/launch/dog_realsense_d435i_stereo.launch">
     <arg name="serial_no" value="$(arg serial_no)"/>
@@ -37,9 +39,15 @@
         name="base_link_to_camera_link_tf"
         args="0.2 0.0 0.0 -0.1635689211 0.0 0.0 0.9865319093 base_link camera_link 100"/>
 
+  <node if="$(arg publish_world_odom_tf)"
+        pkg="tf"
+        type="static_transform_publisher"
+        name="world_to_odom_tf"
+        args="0 0 0 0 0 0 world odom 100"/>
+
   <node if="$(arg start_rviz)"
         pkg="rviz"
         type="rviz"
         name="dog_vins_rviz"
-        args="-d $(find vins)/../config/vins_rviz_config.rviz"/>
+        args="-d $(arg rviz_config)"/>
 </launch>

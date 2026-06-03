@@ -375,6 +375,27 @@ source ~/dog_vins_localization/vins_ws/devel/setup.bash
 roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.launch
 ```
 
+带 RViz 启动：
+
+```bash
+roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.launch start_rviz:=true
+```
+
+RViz 配置为：
+
+```text
+config/dog_vins_localization.rviz
+```
+
+该配置显示 VINS path/odometry/point cloud、`/leg_odom2`、TF 和
+`/dog_vins/vins_estimator/image_track`。为了让 VINS 的 `world` 和腿部里程计的
+`odom` 能在同一个视图里对比，紧耦合 launch 默认发布 identity `world -> odom`
+静态 TF；如果已有其他节点发布该关系，启动时加：
+
+```bash
+publish_world_odom_tf:=false
+```
+
 输入：
 
 ```text
@@ -660,6 +681,7 @@ config/dog_mono_imu_config.yaml
 config/dog_color_pinhole_1280x720.yaml
 config/dog_d435i_infra_left_640x480.yaml
 config/dog_d435i_infra_right_640x480.yaml
+config/dog_vins_localization.rviz
 ../dog_robot_bridge/launch/dog_robot_state_bridge.launch
 ../dog_robot_bridge/src/dog_qnx_state_bridge.cpp
 README.md

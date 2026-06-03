@@ -400,4 +400,5 @@ roslaunch dog_vins_bringup dog_mono_imu_passive.launch
 - 2026-06-02 实机录包 30 秒约 5.8GB 且触发 rosbag buffer 压力；测试手册新增轻量尺度测试包和 10 秒图像调试包命令，默认建议尺度测试不录 raw 图像和 `image_track`。
 - 2026-06-03 增加 VINS 后端紧耦合工程原型：新增 `LegOdomFactor`，订阅 `/leg_odom2`，在 VINS 滑窗相邻帧之间加入腿部里程计相对约束；默认因子模式为 translation distance + yaw，避免未标定 base/camera 轴系时把 dx/dy 硬绑错。新增入口 `dog_standalone_d435i_stereo_leg_odom.launch` 和配置 `dog_d435i_stereo_leg_odom_config.yaml`。
 - 2026-06-03 实机编译通过后确认：`dog_standalone_d435i_stereo_leg_odom.launch` 本身不发布 `/leg_odom2`，该话题来自机器狗 UDP 状态桥接。已在紧耦合 launch 中发布已知 tilted mount `base_link -> camera_link` 静态 TF，并新增本仓库内只读桥接包 `dog_robot_bridge`，`dog_standalone_d435i_stereo_leg_odom_with_bridge.launch` 不再依赖 `comp2026_ws/message_transformer`。
+- 2026-06-03 新增定位调试 RViz：`config/dog_vins_localization.rviz`，显示 VINS path/odometry/point cloud、`/leg_odom2`、TF、`image_track`。紧耦合 launch 增加 `rviz_config`、`publish_world_odom_tf` 参数，默认发布 identity `world -> odom` 仅用于 RViz 对比显示。
 - 未修改 VINS-Fusion 上游核心包；新增和调整均位于 `dog_vins_bringup` 适配包及本文档。

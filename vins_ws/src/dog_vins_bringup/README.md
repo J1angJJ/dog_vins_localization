@@ -70,6 +70,18 @@ repository:
 roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.launch
 ```
 
+RViz localization dashboard:
+
+```bash
+roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.launch start_rviz:=true
+```
+
+The RViz profile shows VINS path/odometry/points, `/leg_odom2`, TF, and
+`image_track`. For visualization only, the tight-coupled launch publishes an
+identity `world -> odom` static TF so VINS `world` and robot odom can be viewed
+together; disable it with `publish_world_odom_tf:=false` if another node owns
+that relation.
+
 ## Notes
 
 - Parameters are file-based VINS YAML configs in this package, not global ROS params.
