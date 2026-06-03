@@ -76,6 +76,12 @@ RViz localization dashboard:
 roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.launch start_rviz:=true
 ```
 
+If the localization main chain is already running, start RViz only:
+
+```bash
+roslaunch dog_vins_bringup dog_vins_rviz.launch
+```
+
 The RViz profile shows VINS path/odometry/points, `/leg_odom2`, TF, and
 `image_track`. For visualization only, the tight-coupled launch publishes an
 identity `world -> odom` static TF so VINS `world` and robot odom can be viewed

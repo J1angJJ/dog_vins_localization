@@ -381,6 +381,14 @@ roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.laun
 roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.launch start_rviz:=true
 ```
 
+如果主链路已经启动，不要再次启动 `dog_standalone_d435i_stereo_leg_odom_with_bridge.launch`。
+第二次启动同一个主 launch 会注册同名节点，ROS 会关闭旧的相机、桥接和 VINS 节点。
+此时只启动 RViz：
+
+```bash
+roslaunch dog_vins_bringup dog_vins_rviz.launch
+```
+
 RViz 配置为：
 
 ```text
@@ -671,6 +679,7 @@ launch/dog_realsense_d435i_color_imu.launch
 launch/dog_realsense_d435i_stereo.launch
 launch/dog_mono_imu_passive.launch
 launch/dog_external_fusion.launch
+launch/dog_vins_rviz.launch
 launch/dog_standalone_d435i_stereo_leg_odom.launch
 launch/dog_standalone_d435i_stereo_leg_odom_with_bridge.launch
 config/dog_mono_d435i_internal_imu_config.yaml
