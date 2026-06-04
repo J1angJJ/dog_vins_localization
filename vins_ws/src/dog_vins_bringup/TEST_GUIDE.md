@@ -103,13 +103,13 @@ roslaunch dog_vins_bringup dog_standalone_d435i_vins.launch serial_no:=<D435I_SE
 
 用途：避免 RealSense 驱动打开错设备。
 
-如果要同时打开 RViz：
+机器狗端不启动 RViz。需要可视化时，在开发机 `dog_dev_station` 中远程打开：
 
 ```bash
-roslaunch dog_vins_bringup dog_standalone_d435i_vins.launch start_rviz:=true
+roslaunch dog_dev_rviz dog_vins_remote_rviz.launch
 ```
 
-用途：启动 VINS 自带 RViz 配置，观察轨迹、特征点和路径。
+用途：在开发机查看轨迹、特征点和路径，避免机器狗端图形界面压垮 NoMachine 或 GPU/CPU。
 
 如果 `/camera/imu` 不发布，启动双目红外备用链路：
 
@@ -375,34 +375,19 @@ source ~/dog_vins_localization/vins_ws/devel/setup.bash
 roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.launch
 ```
 
-带 RViz 启动：
+机器狗端不启动 RViz。主链路启动后，在开发机 `dog_dev_station` 的 Ubuntu/ROS
+虚拟机中查看：
 
 ```bash
-roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.launch start_rviz:=true
+export ROS_MASTER_URI=http://<robot-ip>:11311
+export ROS_IP=<dev-vm-ip>
+source ~/dog_dev_station/rviz_ws/devel/setup.bash
+roslaunch dog_dev_rviz dog_vins_remote_rviz.launch
 ```
 
-如果主链路已经启动，不要再次启动 `dog_standalone_d435i_stereo_leg_odom_with_bridge.launch`。
-第二次启动同一个主 launch 会注册同名节点，ROS 会关闭旧的相机、桥接和 VINS 节点。
-此时只启动 RViz：
-
-```bash
-roslaunch dog_vins_bringup dog_vins_rviz.launch
-```
-
-RViz 配置为：
-
-```text
-config/dog_vins_localization.rviz
-```
-
-该配置显示 VINS path/odometry/point cloud、`/leg_odom2`、TF 和
-`/dog_vins/vins_estimator/image_track`。为了让 VINS 的 `world` 和腿部里程计的
-`odom` 能在同一个视图里对比，紧耦合 launch 默认发布 identity `world -> odom`
-静态 TF；如果已有其他节点发布该关系，启动时加：
-
-```bash
-publish_world_odom_tf:=false
-```
+不要为了打开 RViz 再启动一遍
+`dog_standalone_d435i_stereo_leg_odom_with_bridge.launch`；第二次启动同一个主
+launch 会注册同名节点，ROS 会关闭旧的相机、桥接和 VINS 节点。
 
 输入：
 
@@ -679,7 +664,6 @@ launch/dog_realsense_d435i_color_imu.launch
 launch/dog_realsense_d435i_stereo.launch
 launch/dog_mono_imu_passive.launch
 launch/dog_external_fusion.launch
-launch/dog_vins_rviz.launch
 launch/dog_standalone_d435i_stereo_leg_odom.launch
 launch/dog_standalone_d435i_stereo_leg_odom_with_bridge.launch
 config/dog_mono_d435i_internal_imu_config.yaml
@@ -690,7 +674,6 @@ config/dog_mono_imu_config.yaml
 config/dog_color_pinhole_1280x720.yaml
 config/dog_d435i_infra_left_640x480.yaml
 config/dog_d435i_infra_right_640x480.yaml
-config/dog_vins_localization.rviz
 ../dog_robot_bridge/launch/dog_robot_state_bridge.launch
 ../dog_robot_bridge/src/dog_qnx_state_bridge.cpp
 README.md

@@ -70,23 +70,15 @@ repository:
 roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.launch
 ```
 
-RViz localization dashboard:
+RViz is intentionally not launched on the robot. Run the dashboard from
+`dog_dev_station` on the developer machine:
 
 ```bash
-roslaunch dog_vins_bringup dog_standalone_d435i_stereo_leg_odom_with_bridge.launch start_rviz:=true
+roslaunch dog_dev_rviz dog_vins_remote_rviz.launch
 ```
 
-If the localization main chain is already running, start RViz only:
-
-```bash
-roslaunch dog_vins_bringup dog_vins_rviz.launch
-```
-
-The RViz profile shows VINS path/odometry/points, `/leg_odom2`, TF, and
-`image_track`. For visualization only, the tight-coupled launch publishes an
-identity `world -> odom` static TF so VINS `world` and robot odom can be viewed
-together; disable it with `publish_world_odom_tf:=false` if another node owns
-that relation.
+The remote RViz profile shows VINS path/odometry/points, `/leg_odom2`, TF, and
+`image_track`.
 
 ## Notes
 

@@ -15,7 +15,6 @@
   <arg name="gyro_fps" default="200"/>
   <arg name="accel_fps" default="100"/>
   <arg name="initial_reset" default="false"/>
-  <arg name="start_rviz" default="false"/>
   <arg name="output" default="screen"/>
 
   <include file="$(find dog_vins_bringup)/launch/dog_realsense_d435i_color_imu.launch">
@@ -37,9 +36,4 @@
           args="$(arg config_file)"/>
   </group>
 
-  <node if="$(arg start_rviz)"
-        pkg="rviz"
-        type="rviz"
-        name="dog_vins_rviz"
-        args="-d $(find vins)/../config/vins_rviz_config.rviz"/>
 </launch>

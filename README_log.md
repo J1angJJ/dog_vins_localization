@@ -402,4 +402,5 @@ roslaunch dog_vins_bringup dog_mono_imu_passive.launch
 - 2026-06-03 实机编译通过后确认：`dog_standalone_d435i_stereo_leg_odom.launch` 本身不发布 `/leg_odom2`，该话题来自机器狗 UDP 状态桥接。已在紧耦合 launch 中发布已知 tilted mount `base_link -> camera_link` 静态 TF，并新增本仓库内只读桥接包 `dog_robot_bridge`，`dog_standalone_d435i_stereo_leg_odom_with_bridge.launch` 不再依赖 `comp2026_ws/message_transformer`。
 - 2026-06-03 新增定位调试 RViz：`config/dog_vins_localization.rviz`，显示 VINS path/odometry/point cloud、`/leg_odom2`、TF、`image_track`。紧耦合 launch 增加 `rviz_config`、`publish_world_odom_tf` 参数，默认发布 identity `world -> odom` 仅用于 RViz 对比显示。
 - 2026-06-03 根据实机 log `20260603-2248.txt` 确认“开 RViz 导致主链路断开”的原因是重复启动同一主 launch，ROS 因同名节点注册关闭旧节点。新增 `dog_vins_rviz.launch` 作为 RViz-only 入口，主链路已运行时只打开 RViz，不重复启动桥接、相机或 VINS。
+- 2026-06-04 将 RViz 从机器狗定位仓库迁移到开发机仓库 `dog_dev_station`：机器狗端 launch 不再包含 RViz 节点，`dog_dev_station/rviz_ws/src/dog_dev_rviz` 提供远程 RViz 配置和 `dog_vins_remote_rviz.launch`。机器狗端保持 headless，只运行桥接、相机和 VINS。
 - 未修改 VINS-Fusion 上游核心包；新增和调整均位于 `dog_vins_bringup` 适配包及本文档。
